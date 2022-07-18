@@ -2,50 +2,108 @@
 
 use core::fmt::{self, Write};
 
+#[cfg(any(feature = "machine-mode", feature = "supervisor-mode"))]
 use riscv::interrupt;
 
 use crate::hio::{self, HostStream};
 
 static mut HSTDOUT: Option<HostStream> = None;
 
-pub fn hstdout_str(s: &str) {
-    let _result = interrupt::free(|_| unsafe {
-        if HSTDOUT.is_none() {
-            HSTDOUT = Some(hio::hstdout()?);
+cfg_if::cfg_if! {
+    if #[cfg(feature="machine-mode")] {
+        pub fn hstdout_str(s: &str) {
+            let _result = interrupt::free(|_| unsafe {
+                if HSTDOUT.is_none() {
+                    HSTDOUT = Some(hio::hstdout()?);
+                }
+
+                HSTDOUT.as_mut().unwrap().write_str(s).map_err(drop)
+            });
         }
 
-        HSTDOUT.as_mut().unwrap().write_str(s).map_err(drop)
-    });
-}
+        pub fn hstdout_fmt(args: fmt::Arguments) {
+            let _result = interrupt::free(|_| unsafe {
+                if HSTDOUT.is_none() {
+                    HSTDOUT = Some(hio::hstdout()?);
+                }
 
-pub fn hstdout_fmt(args: fmt::Arguments) {
-    let _result = interrupt::free(|_| unsafe {
-        if HSTDOUT.is_none() {
-            HSTDOUT = Some(hio::hstdout()?);
+                HSTDOUT.as_mut().unwrap().write_fmt(args).map_err(drop)
+            });
         }
 
-        HSTDOUT.as_mut().unwrap().write_fmt(args).map_err(drop)
-    });
-}
+        static mut HSTDERR: Option<HostStream> = None;
 
-static mut HSTDERR: Option<HostStream> = None;
+        pub fn hstderr_str(s: &str) {
+            let _result = interrupt::free(|_| unsafe {
+                if HSTDERR.is_none() {
+                    HSTDERR = Some(hio::hstderr()?);
+                }
 
-pub fn hstderr_str(s: &str) {
-    let _result = interrupt::free(|_| unsafe {
-        if HSTDERR.is_none() {
-            HSTDERR = Some(hio::hstderr()?);
+                HSTDERR.as_mut().unwrap().write_str(s).map_err(drop)
+            });
         }
 
-        HSTDERR.as_mut().unwrap().write_str(s).map_err(drop)
-    });
-}
+        pub fn hstderr_fmt(args: fmt::Arguments) {
+            let _result = interrupt::free(|_| unsafe {
+                if HSTDERR.is_none() {
+                    HSTDERR = Some(hio::hstderr()?);
+                }
 
-pub fn hstderr_fmt(args: fmt::Arguments) {
-    let _result = interrupt::free(|_| unsafe {
-        if HSTDERR.is_none() {
-            HSTDERR = Some(hio::hstderr()?);
+                HSTDERR.as_mut().unwrap().write_fmt(args).map_err(drop)
+            });
+        }
+    }
+    else if #[cfg(feature = "supervisor-mode")] {
+        compile_error!("Support for Supervisor mode is not yet implemented. \
+                        Use the User mode implementation instead.");
+    }
+    else if #[cfg(feature = "user-mode")] {
+        pub fn hstdout_str(s: &str) {
+            let _result = unsafe {
+                if HSTDOUT.is_none() {
+                    HSTDOUT = Some(hio::hstdout().unwrap());
+                }
+
+                HSTDOUT.as_mut().unwrap().write_str(s).map_err(drop)
+            };
         }
 
-        HSTDERR.as_mut().unwrap().write_fmt(args).map_err(drop)
-    });
+        pub fn hstdout_fmt(args: fmt::Arguments) {
+            let _result = unsafe {
+                if HSTDOUT.is_none() {
+                    HSTDOUT = Some(hio::hstdout().unwrap());
+                }
+
+                HSTDOUT.as_mut().unwrap().write_fmt(args).map_err(drop)
+            };
+        }
+
+        static mut HSTDERR: Option<HostStream> = None;
+
+        pub fn hstderr_str(s: &str) {
+            let _result = unsafe {
+                if HSTDERR.is_none() {
+                    HSTDERR = Some(hio::hstderr().unwrap());
+                }
+
+                HSTDERR.as_mut().unwrap().write_str(s).map_err(drop)
+            };
+        }
+
+        pub fn hstderr_fmt(args: fmt::Arguments) {
+            let _result = unsafe {
+                if HSTDERR.is_none() {
+                    HSTDERR = Some(hio::hstderr().unwrap());
+                }
+
+                HSTDERR.as_mut().unwrap().write_fmt(args).map_err(drop)
+            };
+        }
+    }
+    else {
+        compile_error!("A privelege level has not been selected. Enable one of \
+                        the machine-mode, supervisor-mode, or user-mode \
+                        features as appropriate for your use case.");
+    }
 }
+

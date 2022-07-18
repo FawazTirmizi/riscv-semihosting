@@ -1,24 +1,21 @@
-[![crates.io](https://img.shields.io/crates/v/cortex-m-semihosting.svg)](https://crates.io/crates/cortex-m-semihosting)
-[![crates.io](https://img.shields.io/crates/d/cortex-m-semihosting.svg)](https://crates.io/crates/cortex-m-semihosting)
-
 # `riscv-semihosting`
 
 > Semihosting for RISC-V processors
 
 This is a fork of the
-[cortex-m-semihosting](https://docs.rs/cortex-m-semihosting) crate with minimal
-changes to support the RISC-V Semihosting Specification as documented
+[cortex-m-semihosting](https://docs.rs/cortex-m-semihosting) crate with changes
+to support the RISC-V Semihosting Specification as documented
 [here](https://github.com/riscv/riscv-semihosting-spec/blob/main/riscv-semihosting-spec.adoc)
 
 This crate can be used in exactly the same way as cortex-m-semihosting, simply
 by changing calls to `cortex_m_semihosting::*` to `riscv_semihosting::*`.
+However, when adding the crate as a dependency, be sure to select either the
+`machine-mode` or `user-mode` feature, as that will determine whether interrupts
+are suspended or not during semihosting calls. Failure to do so will cause
+compiler errors, and selecting the wrong one can cause runtime problems, namely
+illegal instruction exceptions if using the M mode implementations in U mode.
 
-The rest of this document is as-is from upstream, and obviously any
-ARM-specific sections should be ignored.
-
-This project is developed and maintained by the [Cortex-M team][team].
-
-## [Documentation](https://docs.rs/cortex-m-semihosting)
+## [cortex-m-semihosting Documentation](https://docs.rs/cortex-m-semihosting)
 
 # Minimum Supported Rust Version (MSRV)
 
@@ -44,8 +41,8 @@ dual licensed as above, without any additional terms or conditions.
 ## Code of Conduct
 
 Contribution to this crate is organized under the terms of the [Rust Code of
-Conduct][CoC], the maintainer of this crate, the [Cortex-M team][team], promises
+Conduct][CoC], the maintainer of this crate, the [RISC-V team][team], promises
 to intervene to uphold that code of conduct.
 
 [CoC]: ../CODE_OF_CONDUCT.md
-[team]: https://github.com/rust-embedded/wg#the-cortex-m-team
+[team]: https://github.com/rust-embedded/wg#the-risc-v-team

@@ -20,6 +20,8 @@ This project adheres to [Semantic Versioning](http://semver.org/).
       bumped to 1.59.0
 - Clean up documentation, removing unnecessary references to
   cortex-m-semihosting and improving clarity.
+- Add features to select the privilege level the semihosting operations will be
+  started from
 
 ## [v0.0.1] - 2018-02-27
 

@@ -28,7 +28,7 @@ jobs:
           toolchain: ${{ matrix.rust-version }}
           override: true
       - name: Install all Rust targets for ${{ matrix.rust-version }}
-        run: rustup target install --toolchain=${{ matrix.rust-version }}
+        run: rustup target install --toolchain=${{ matrix.rust-version }} ${{ matrix.toolchain }}
       - name: Install riscv gcc
         run: sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf
       - name: Run CI script for ${{ matrix.toolchain }} under ${{ matrix.rust-version }}

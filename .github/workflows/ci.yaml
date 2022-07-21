@@ -12,7 +12,8 @@ jobs:
     strategy:
       matrix:
         # All generated code should be running on stable now, MRSV is 1.59.0
-        rust: [nightly, stable, 1.59.0]
+        rust-version: [nightly, stable, 1.59.0]
+        toolchain: [riscv32i-unknown-none-elf, riscv32imc-unknown-none-elf, riscv32imac-unknown-none-elf, riscv64imac-unknown-none-elf, riscv64gc-unknown-none-elf]
 
         include:
           # Nightly is only for reference and allowed to fail
@@ -24,15 +25,11 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust }}
+          toolchain: ${{ matrix.rust-version }}
           override: true
-      - name: Install all Rust targets for ${{ matrix.rust }}
-        run: rustup target install --toolchain=${{ matrix.rust }} x86_64-unknown-linux-gnu riscv32imac-unknown-none-elf riscv64imac-unknown-none-elf riscv64gc-unknown-none-elf
+      - name: Install all Rust targets for ${{ matrix.rust-version }}
+        run: rustup target install --toolchain=${{ matrix.rust-version }}
       - name: Install riscv gcc
         run: sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf
-      - name: Run CI script for riscv32imac-unknown-none-elf under ${{ matrix.rust }}
-        run: cargo check --target riscv32imac-unknown-none-elf
-      - name: Run CI script for riscv64imac-unknown-none-elf under ${{ matrix.rust }}
-        run: cargo check --target riscv64imac-unknown-none-elf
-      - name: Run CI script for riscv64gc-unknown-none-elf under ${{ matrix.rust }}
-        run: cargo check --target riscv64gc-unknown-none-elf
+      - name: Run CI script for ${{ matrix.toolchain }} under ${{ matrix.rust-version }}
+        run: cargo check --verbose --target ${{ matrix.toolchain }}

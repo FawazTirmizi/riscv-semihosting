@@ -7,8 +7,8 @@ jobs:
     strategy:
       matrix:
         # All generated code should be running on stable now, MRSV is 1.59.0
-        rust-version: [nightly, stable, 1.59.0]
-        toolchain: [riscv32i-unknown-none-elf, riscv32imc-unknown-none-elf, riscv32imac-unknown-none-elf, riscv64imac-unknown-none-elf, riscv64gc-unknown-none-elf, riscv64gc-unknown-linux-gnu]
+        toolchain: [nightly, stable, 1.59.0]
+        target: [riscv32i-unknown-none-elf, riscv32imc-unknown-none-elf, riscv32imac-unknown-none-elf, riscv64imac-unknown-none-elf, riscv64gc-unknown-none-elf, riscv64gc-unknown-linux-gnu]
 
         include:
           # Nightly is only for reference and allowed to fail
@@ -20,16 +20,17 @@ jobs:
       - uses: actions-rs/toolchain@v1
         with:
           profile: minimal
-          toolchain: ${{ matrix.rust-version }}
+          toolchain: ${{ matrix.toolchain }}
+          target: ${{ matrix.target }}
           override: true
       - uses: actions-rs/cargo@v1
         with:
           use-cross: true
           command: check
-          args: --verbose --target ${{ matrix.toolchain }}
-            #      - name: Install all Rust targets for ${{ matrix.rust-version }}
-            #        run: rustup target install --toolchain=${{ matrix.rust-version }} ${{ matrix.toolchain }}
+          args: --verbose --target ${{ matrix.target }}
+            #      - name: Install all Rust targets for ${{ matrix.toolchain }}
+            #        run: rustup target install --toolchain=${{ matrix.toolchain }} ${{ matrix.target }}
             #      - name: Install riscv gcc
             #        run: sudo apt-get update && sudo apt-get install -y gcc-riscv64-unknown-elf
-            #      - name: Run CI script for ${{ matrix.toolchain }} under ${{ matrix.rust-version }}
+            #      - name: Run CI script for ${{ matrix.target }} under ${{ matrix.toolchain }}
             #        run: cargo check 

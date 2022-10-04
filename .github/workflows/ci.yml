@@ -1,14 +1,9 @@
-on:
-  push:
-    branches: [ staging, trying, master ]
-  pull_request:
-
-name: Continuous integration
+name: check
+on: [push, pull_request]
 
 jobs:
   ci-linux:
-    runs-on: ubuntu-20.04
-    continue-on-error: ${{ matrix.experimental || false }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         # All generated code should be running on stable now, MRSV is 1.59.0

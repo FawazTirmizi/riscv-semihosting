@@ -24,7 +24,9 @@ jobs:
           override: true
       - uses: actions-rs/cargo@v1
         with:
-          command: check -- --verbose --target ${{ matrix.toolchain }}
+          use-cross: true
+          command: check
+          args: --verbose --target ${{ matrix.toolchain }}
             #      - name: Install all Rust targets for ${{ matrix.rust-version }}
             #        run: rustup target install --toolchain=${{ matrix.rust-version }} ${{ matrix.toolchain }}
             #      - name: Install riscv gcc

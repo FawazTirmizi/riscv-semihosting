@@ -1,9 +1,9 @@
-name: doc
+name: clippy
 on: [push, pull_request]
 
-
 jobs:
-  doc:
+  clippy:
+    name: Clippy
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -12,6 +12,8 @@ jobs:
           profile: minimal
           toolchain: stable
           override: true
+      - run: rustup component add clippy
       - uses: actions-rs/cargo@v1
         with:
-          command: doc
+          command: clippy
+          args: -- -D warnings
